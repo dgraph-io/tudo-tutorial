@@ -1,0 +1,11 @@
+type User {
+    username: String! @id
+    todos: [Todo!]! @hasInverse(field: owner)
+}
+
+type Todo {
+    id: ID!
+    value: String!
+    completed: Boolean! @search
+    owner: User!
+}

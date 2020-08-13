@@ -4,7 +4,13 @@ Todo React App using GraphQL build by Dgraph Labs and powered by [Slash GraphQL]
 
 ![Todo App Screenshot](./SlashGraphQLTodos.png)
 
-Check out this blog post (coming soon) to learn more about getting started with Slash GraphQL, or head over to our [docs](https://graphql.dgraph.io/) to get started.
+This repo contains a number of versions of the app.
+
+If you are just getting started with Slash GraphQL, you might want to start with the the branch `get-started-blog` in this repo and this blog post (coming soon).
+
+If you are here to learn about deploying a multi-user app with Slash GraphQL that has built in auth, with an Auth0 login, deployed to Netlify, then check out this blog (coming soon) on the Auth0 blog site.
+
+You can also head over to our [docs](https://graphql.dgraph.io/) to get started.
 
 ## Starting the App
 
