@@ -73,6 +73,7 @@ function App() {
     isAuthenticated,
     loginWithRedirect,
     logout,
+    user
   } = useAuth0()
   if (auth0IsLoading) {
     return <p>Auth0 is starting</p>
@@ -103,7 +104,7 @@ function App() {
 
   const addNewTodo = (value) =>
     add({
-      variables: { todo: { value: value, completed: false } },
+      variables: { todo: { value: value, completed: false, owner: { username: user.email } } },
       update(cache, { data }) {
         const existing = cache.readQuery({ query: GET_TODOS })
         cache.writeQuery({

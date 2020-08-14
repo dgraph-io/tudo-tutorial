@@ -3,9 +3,21 @@ type User {
     todos: [Todo!]! @hasInverse(field: owner)
 }
 
-type Todo {
+type Todo @auth(
+    query: { rule: """
+    query($username: String!) {
+        queryTodo {
+            owner(filter: { username: { eq: $username}}) {
+            username
+            }
+        }
+    }
+    """}
+){
     id: ID!
     value: String!
     completed: Boolean! @search
     owner: User!
 }
+
+# Dgraph.Authorization {"Header":"Authorization","Namespace":"https://msg.dgraph.io/claims","Algo":"RS256", "Audience":["uP8THzorNFP5aBDAgaYht3uA7hMtZacY"], "VerificationKey":"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkgiZPRnPg3Y9BWJyXe5A\n4chZK7Mw77GRuKm4TXeCRlpDaGd2dmwasWnoxQ6ntIpvjsZiFjnOvtz+roG8VfkP\nnLVA0v+uT40TVCf5rgd7wSao4DqXsSVG7LTz1OEDR0Bc9qqfunkTMlFud7bKaqd4\nqRQ6SG0HGfhrWKwa1sEYZ2Y9Z6vjlT5PFw39DXzoMCLK98H4M9GrylMTp6l2OpoZ\nkfMkBApvH0JWabG24i4m1FB978J20/YFts+HHgEd5GQlZ4G+wkQEHWrG3igs6Z9Z\nRfYnC2g86iz3Y5ckG5rQPpptN+vcL5qIhekZpd+IPg7eCc+0yYS5qctOyqb1dMXZ\n4QIDAQAB\n-----END PUBLIC KEY-----"}
