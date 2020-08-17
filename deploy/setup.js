@@ -14,14 +14,19 @@ const updateSchema = gql`
 `
 
 function createSchema() {
-  var schema = readFileSync("deploy/schema.graphql", "utf8")
-  var todoRule = readFileSync("deploy/must-own-todo.graphql", "utf8")
-  var userRule = readFileSync("deploy/must-be-this-user.graphql", "utf8")
+  var schema = readFileSync("deploy/SlashGraphQL/schema.graphql", "utf8")
+  var todoRule = readFileSync("deploy/SlashGraphQL/must-own-todo.graphql", "utf8")
+  var userRule = readFileSync("deploy/SlashGraphQL/must-be-this-user.graphql", "utf8")
 
   schema = schema.replace(/must-own-todo/g, '"""' + todoRule + '"""')
   schema = schema.replace(/must-be-this-user/g, '"""' + userRule + '"""')
 
-  return schema
+  var authStr = readFileSync("deploy/SlashGraphQL/auth.json", "utf8")
+  var key = readFileSync("deploy/SlashGraphQL/public.key", "utf8")
+  var auth = JSON.parse(authStr)
+  auth.VerificationKey = key
+
+  return schema + "\n\n# Dgraph.Authorization " + JSON.stringify(auth)
 }
 
 async function installSchema() {

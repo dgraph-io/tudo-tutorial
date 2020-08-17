@@ -35,8 +35,8 @@
 // 'AddUser' permission, and the only way to get that is if you know the
 // Auth0 secrets.
 
-const axios = require("axios@0.19.2")
-const { GraphQLClient } = require("graphql-request@1.8.2")
+const axios = require("./node_modules/axios@0.19.2")
+const { GraphQLClient } = require("./node_modules/graphql-request@1.8.2")
 
 module.exports = function (user, context, cb) {
   // Fill these values in with the details of your Auth0 "MACHINE TO MACHINE" application.

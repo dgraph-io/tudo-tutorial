@@ -1,0 +1,21 @@
+type User @auth(
+    query: { rule: must-be-this-user },
+    add: { rule: "{$role: {eq: \"AddUser\"}}" },
+    update: { rule: "{$role: {eq: \"Admin\"}}" }
+    delete: { rule: "{$role: {eq: \"Admin\"}}" }
+) {
+    username: String! @id
+    todos: [Todo!]! @hasInverse(field: owner)
+}
+
+type Todo @auth(
+    query: { rule: must-own-todo },
+    add: { or: [ { rule: must-own-todo }, { rule: "{$role: {eq: \"AddUser\"}}" } ] },
+    update: { rule: must-own-todo },
+    delete: { rule: must-own-todo }
+){
+    id: ID!
+    value: String!
+    completed: Boolean! @search
+    owner: User!
+}
