@@ -14,7 +14,7 @@ const AuthorizedApolloProvider = ({ children }) => {
   const { isAuthenticated, getIdTokenClaims } = useAuth0()
 
   const httpLink = createHttpLink({
-    uri: process.env.SLASH_GRAPHQL_ENDPOINT + "/graphql",
+    uri: process.env.REACT_APP_SLASH_GRAPHQL_ENDPOINT + "/graphql",
   })
 
   const authLink = setContext(async (_, { headers }) => {
@@ -23,6 +23,8 @@ const AuthorizedApolloProvider = ({ children }) => {
     }
 
     const token = await getIdTokenClaims()
+
+console.log(token.__raw)
 
     return {
       headers: {

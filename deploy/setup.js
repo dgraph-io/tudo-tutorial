@@ -32,7 +32,7 @@ async function installSchema() {
   })
 
   const client = new GraphQLClient(
-    process.env.SLASH_GRAPHQL_ENDPOINT + "/admin",
+    process.env.REACT_APP_SLASH_GRAPHQL_ENDPOINT + "/admin",
     { headers: { "X-Auth-Token": slashToken } }
   )
 
