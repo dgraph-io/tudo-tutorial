@@ -24,8 +24,6 @@ const AuthorizedApolloProvider = ({ children }) => {
 
     const token = await getIdTokenClaims()
 
-console.log(token.__raw)
-
     return {
       headers: {
         ...headers,
