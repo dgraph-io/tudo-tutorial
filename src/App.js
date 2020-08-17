@@ -94,7 +94,7 @@ function App() {
       >
         Log out
       </button>{" "}
-      once you are finished.
+      once you are finished, {user.email}.
     </p>
   )
 
