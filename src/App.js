@@ -66,14 +66,13 @@ function App() {
   const [upd] = useMutation(UPDATE_TODO)
   const [clear] = useMutation(CLEAR_COMPLETED_TODOS)
 
-
   const {
     auth0IsLoading,
     auth0Error,
     isAuthenticated,
     loginWithRedirect,
     logout,
-    user
+    user,
   } = useAuth0()
   if (auth0IsLoading) {
     return <p>Auth0 is starting</p>
@@ -94,7 +93,6 @@ function App() {
     </button>
   )
 
-  
   if (loading) {
     return <p>Loading</p>
   }
@@ -104,7 +102,13 @@ function App() {
 
   const addNewTodo = (value) =>
     add({
-      variables: { todo: { value: value, completed: false, owner: { username: user.email } } },
+      variables: {
+        todo: {
+          value: value,
+          completed: false,
+          owner: { username: user.email },
+        },
+      },
       update(cache, { data }) {
         const existing = cache.readQuery({ query: GET_TODOS })
         cache.writeQuery({

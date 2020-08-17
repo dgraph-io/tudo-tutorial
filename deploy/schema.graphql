@@ -1,18 +1,18 @@
-type User {
+type User @auth(
+    query: { rule: must-be-this-user },
+    add: { rule: "{$role: {eq: \"AddUser\"}}" },
+    update: { rule: "{$role: {eq: \"Admin\"}}" }
+    delete: { rule: "{$role: {eq: \"Admin\"}}" }
+) {
     username: String! @id
     todos: [Todo!]! @hasInverse(field: owner)
 }
 
 type Todo @auth(
-    query: { rule: """
-    query($username: String!) {
-        queryTodo {
-            owner(filter: { username: { eq: $username}}) {
-            username
-            }
-        }
-    }
-    """}
+    query: { rule: must-own-todo },
+    add: { or: [ { rule: must-own-todo }, { rule: "{$role: {eq: \"AddUser\"}}" } ] },
+    update: { rule: must-own-todo },
+    delete: { rule: must-own-todo }
 ){
     id: ID!
     value: String!
@@ -20,4 +20,4 @@ type Todo @auth(
     owner: User!
 }
 
-# Dgraph.Authorization {"Header":"Authorization","Namespace":"https://msg.dgraph.io/claims","Algo":"RS256", "Audience":["uP8THzorNFP5aBDAgaYht3uA7hMtZacY"], "VerificationKey":"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkgiZPRnPg3Y9BWJyXe5A\n4chZK7Mw77GRuKm4TXeCRlpDaGd2dmwasWnoxQ6ntIpvjsZiFjnOvtz+roG8VfkP\nnLVA0v+uT40TVCf5rgd7wSao4DqXsSVG7LTz1OEDR0Bc9qqfunkTMlFud7bKaqd4\nqRQ6SG0HGfhrWKwa1sEYZ2Y9Z6vjlT5PFw39DXzoMCLK98H4M9GrylMTp6l2OpoZ\nkfMkBApvH0JWabG24i4m1FB978J20/YFts+HHgEd5GQlZ4G+wkQEHWrG3igs6Z9Z\nRfYnC2g86iz3Y5ckG5rQPpptN+vcL5qIhekZpd+IPg7eCc+0yYS5qctOyqb1dMXZ\n4QIDAQAB\n-----END PUBLIC KEY-----"}
+# Dgraph.Authorization {"Header":"Authorization","Namespace":"https://todo.dgraph.io/claims","Algo":"RS256", "Audience":["uP8THzorNFP5aBDAgaYht3uA7hMtZacY", "https://dev-x44cgu-8.auth0.com/api/v2/"], "VerificationKey":"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkgiZPRnPg3Y9BWJyXe5A\n4chZK7Mw77GRuKm4TXeCRlpDaGd2dmwasWnoxQ6ntIpvjsZiFjnOvtz+roG8VfkP\nnLVA0v+uT40TVCf5rgd7wSao4DqXsSVG7LTz1OEDR0Bc9qqfunkTMlFud7bKaqd4\nqRQ6SG0HGfhrWKwa1sEYZ2Y9Z6vjlT5PFw39DXzoMCLK98H4M9GrylMTp6l2OpoZ\nkfMkBApvH0JWabG24i4m1FB978J20/YFts+HHgEd5GQlZ4G+wkQEHWrG3igs6Z9Z\nRfYnC2g86iz3Y5ckG5rQPpptN+vcL5qIhekZpd+IPg7eCc+0yYS5qctOyqb1dMXZ\n4QIDAQAB\n-----END PUBLIC KEY-----"}
