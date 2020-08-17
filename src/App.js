@@ -82,15 +82,20 @@ function App() {
   }
 
   const logInOut = !isAuthenticated ? (
-    <button onClick={loginWithRedirect}>Log in</button>
+    <p>
+      <button onClick={loginWithRedirect}>Log in</button> to use the app.
+    </p>
   ) : (
-    <button
-      onClick={() => {
-        logout({ returnTo: window.location.origin })
-      }}
-    >
-      Log out
-    </button>
+    <p>
+      <button
+        onClick={() => {
+          logout({ returnTo: window.location.origin })
+        }}
+      >
+        Log out
+      </button>{" "}
+      once you are finished.
+    </p>
   )
 
   if (loading) {
