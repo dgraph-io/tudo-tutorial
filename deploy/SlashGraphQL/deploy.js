@@ -1,6 +1,7 @@
-const { readFileSync } = require("fs")
+const { readFileSync, existsSync } = require("fs")
 const readlineSync = require("readline-sync")
 const { GraphQLClient, gql } = require("graphql-request")
+const jwksClient = require("jwks-rsa")
 require("dotenv").config()
 
 const updateSchema = gql`
@@ -13,24 +14,49 @@ const updateSchema = gql`
   }
 `
 
-function createSchema() {
+async function createSchema() {
   var schema = readFileSync("deploy/SlashGraphQL/schema.graphql", "utf8")
-  var todoRule = readFileSync("deploy/SlashGraphQL/must-own-todo.graphql", "utf8")
-  var userRule = readFileSync("deploy/SlashGraphQL/must-be-this-user.graphql", "utf8")
+  var todoRule = readFileSync(
+    "deploy/SlashGraphQL/must-own-todo.graphql",
+    "utf8"
+  )
+  var userRule = readFileSync(
+    "deploy/SlashGraphQL/must-be-this-user.graphql",
+    "utf8"
+  )
 
   schema = schema.replace(/must-own-todo/g, '"""' + todoRule + '"""')
   schema = schema.replace(/must-be-this-user/g, '"""' + userRule + '"""')
 
-  var authStr = readFileSync("deploy/SlashGraphQL/auth.json", "utf8")
-  var key = readFileSync("deploy/SlashGraphQL/public.key", "utf8")
-  var auth = JSON.parse(authStr)
-  auth.VerificationKey = key
+  var authConfig = JSON.parse(
+    readFileSync("deploy/SlashGraphQL/auth.json", "utf8")
+  )
 
-  return schema + "\n\n# Dgraph.Authorization " + JSON.stringify(auth)
+  if (existsSync("deploy/SlashGraphQL/public.key")) {
+    var key = readFileSync("deploy/SlashGraphQL/public.key", "utf8")
+
+    authConfig.Dgraph_Authorization.VerificationKey = key
+  } else if (authConfig.jwksClient) {
+    const client = jwksClient({
+      jwksUri: authConfig.jwksClient.jwksUri,
+    })
+    authConfig.Dgraph_Authorization.VerificationKey = (await client.getSigningKeyAsync(
+      authConfig.jwksClient.kid
+    )).getPublicKey()
+  } else {
+    console.log("Unable to find keys in auth config")
+    process.exit(1)
+  }
+
+  return (
+    schema +
+    "\n\n# Dgraph.Authorization " +
+    JSON.stringify(authConfig.Dgraph_Authorization)
+  )
 }
 
 async function installSchema() {
-  const gqlSchema = createSchema()
+  const gqlSchema = await createSchema()
 
   var slashToken = readlineSync.question("Slash GraphQL access token : ", {
     hideEchoBack: true,
@@ -53,7 +79,7 @@ installSchema()
     } else {
       console.log(
         `Schema added to Slash GraphQL instance at ` +
-          process.env.SLASH_GRAPHQL_ENDPOINT
+          process.env.REACT_APP_SLASH_GRAPHQL_ENDPOINT
       )
     }
   })
