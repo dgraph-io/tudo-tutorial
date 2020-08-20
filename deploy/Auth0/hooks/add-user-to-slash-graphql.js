@@ -35,20 +35,20 @@
 // 'AddUser' permission, and the only way to get that is if you know the
 // Auth0 secrets.
 
-const axios = require("./node_modules/axios@0.19.2")
-const { GraphQLClient } = require("./node_modules/graphql-request@1.8.2")
+const axios = require("axios@0.19.2")
+const { GraphQLClient } = require("graphql-request@1.8.2")
 
 module.exports = function (user, context, cb) {
   // Fill these values in with the details of your Auth0 "MACHINE TO MACHINE" application.
   // Creating the M2M app gives you the credentials needed to call the
   // "Client Credentials Exchange" and thus generate an Auth0 signed JWT.
-  const authorizationHook = "<<your M2M hook>>"
-  const clientID = "<<your client id>>"
-  const clientSecret = "<<your client secret>>"
-  const authAudience = "<<your M2M audience id>>"
+  const authorizationHook = "<<your-M2M-hook>>"
+  const clientID = "<<your-client-id>>"
+  const clientSecret = "<<your-client-secret>>"
+  const authAudience = "<<your-M2M-audience-id>>"
 
   // Fill this value with your Slash GraphQL instance.
-  const slashGraphQL = "<<your Slash GraphQL URL>>"
+  const slashGraphQL = "<<your-Slash-GraphQL-URL>>"
 
   // First we call the "Client Credentials Exchange" hook to get a signed JWT that has
   // a claim to the "AddUser" role - we've set the schema so only that role can add a user.

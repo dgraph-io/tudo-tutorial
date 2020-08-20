@@ -23,7 +23,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "set-schema": "node deploy/setup.js"
+    "deploy-slash": "node deploy/SlashGraphQL/deploy.js",
+    "deploy-auth0": "node deploy/Auth0/deploy.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -39,5 +40,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "auth0": "^2.27.1"
   }
 }
