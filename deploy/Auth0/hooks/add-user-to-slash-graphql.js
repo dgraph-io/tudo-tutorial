@@ -22,15 +22,15 @@
 // Add this hook as a "Post User Registration" hook.
 // It needs both a "Client Credentials Exchange" hook and
 // a "MACHINE TO MACHINE" application set up to work
-// (see auth0-authorize-add-user.js).
+// (see authorize-add-user-to-slash-graphql.js).
 //
 // After Auth0 has processed the user registration flow and added the user
 // to its internal user list for the app, it calls this hook, which then adds
-// the user to the Dgraph graph.
+// the user to the Slash GraphQL graph.
 //
-// The user is needed in Dgraph, so we can link the user to their todos.
+// The user is needed in Slash GraphQL, so we can link the user to their data.
 //
-// In this case, we have secured the Dgraph GraphQL API so that the only way to
+// In this case, we have secured the Slash GraphQL API so that the only way to
 // add a user is if the request contains a valid Auth0 signed JWT that has the
 // 'AddUser' permission, and the only way to get that is if you know the
 // Auth0 secrets.
@@ -45,7 +45,7 @@ module.exports = function (user, context, cb) {
   const authorizationHook = "<<your-M2M-hook>>"
   const clientID = "<<your-client-id>>"
   const clientSecret = "<<your-client-secret>>"
-  const authAudience = "<<your-M2M-audience-id>>"
+  const authAudience = "<<your-M2M-audience>>"
 
   // Fill this value with your Slash GraphQL instance.
   const slashGraphQL = "<<your-Slash-GraphQL-URL>>"

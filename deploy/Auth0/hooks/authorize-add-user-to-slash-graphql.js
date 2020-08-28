@@ -14,10 +14,10 @@
 // Add this hook as a "Client Credentials Exchange" hook.
 // You'll need to set up a corresponding "MACHINE TO MACHINE"
 // application so you can get a client ID and secret to
-// call this hook (see auth0-add-user-hook.js for how it's called).
+// call this hook (see add-user-to-slash-graphql.js for how it's called).
 //
 // This gets called by Auth0 "Post User Registration" to generate
-// a special JWT that has the permission to add a new user to Dgraph.
+// a special JWT that has the permission to add a new user to Slash GraphQL.
 //
 // There's no way to get such a JWT except via this code, and it
 // can only be run by the Post User Registration in Auth0 (or
