@@ -42,8 +42,8 @@ const AuthorizedApolloProvider = ({ children }) => {
 
 ReactDOM.render(
   <Auth0Provider
-    domain="[your Auth0 app's Domain]"
-    clientId="[your Auth0 app's Client ID]"
+    domain="slash-todos.au.auth0.com"
+    clientId="uWjFIKMZHgjO9nrFv4L9HsvqcLLPUN8l"
     redirectUri={window.location.origin}
   >
     <AuthorizedApolloProvider>
