@@ -7,11 +7,11 @@
   "cross_origin_auth": false,
   "allowed_clients": [],
   "allowed_logout_urls": [
-    "https://localhost:3001",
+    "http://localhost:3000",
     "https://*.netlify.app"
   ],
   "callbacks": [
-    "https://localhost:3001",
+    "http://localhost:3000",
     "https://*.netlify.app"
   ],
   "native_social_login": {
@@ -36,7 +36,7 @@
     "refresh_token"
   ],
   "web_origins": [
-    "https://localhost:3001",
+    "http://localhost:3000",
     "https://*.netlify.app"
   ],
   "custom_login_page_on": true
