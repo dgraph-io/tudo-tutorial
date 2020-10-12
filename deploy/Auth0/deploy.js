@@ -90,6 +90,11 @@ function addOrUpdateRule(management, config, ruleName) {
   })
 }
 
+function rules(management, config) {
+  addOrUpdateRule(management, config, "add-username")
+  addOrUpdateRule(management, config, "add-user-to-slash-graphql")
+}
+
 var config = JSON.parse(readFileSync(dir + "/config.json", "utf8"))
 config.SLASH_GRAPHQL_ENDPOINT = process.env.REACT_APP_SLASH_GRAPHQL_ENDPOINT
 
@@ -111,9 +116,6 @@ var authorize_add_hook_data = {
 }
 addOrUpdateHook(management, authorize_add_hook_data, "credentials-exchange")
 
-addOrUpdateRule(management, config, "add-username")
-addOrUpdateRule(management, config, "add-user-to-slash-graphql")
-
 management.getClients(function (err, clients) {
   if (err) {
     console.log(err)
@@ -122,11 +124,8 @@ management.getClients(function (err, clients) {
   const m2m = clients.find((c) => c.name == "Authorize M2M for Slash GraphQL")
 
   if (m2m) {
-    addOrUpdateM2MHook({
-      clientID: m2m.client_id,
-      clientSecret: m2m.client_secret,
-      domain: config.AUTH0_DOMAIN,
-    })
+    config.m2m = m2m
+    rules(management, config)
   } else {
     var m2mClient = JSON.parse(
       readFileSync(
@@ -141,11 +140,8 @@ management.getClients(function (err, clients) {
       }
       console.log('created application "Authorize M2M for Slash GraphQL"')
 
-      addOrUpdateM2MHook({
-        clientID: createdM2MClient.client_id,
-        clientSecret: createdM2MClient.client_secret,
-        domain: config.AUTH0_DOMAIN,
-      })
+      config.m2m = createdM2MClient
+      rules(management, config)
 
       const grantData = {
         client_id: createdM2MClient.client_id,
