@@ -36,41 +36,30 @@ function addOrUpdateHook(management, hookData, triggerId) {
   })
 }
 
-function addOrUpdateM2MHook(m2mConfig) {
-  var add_user_hook = readFileSync(
-    dir + "/hooks/" + "add-user-to-slash-graphql.js",
-    "utf8"
-  )
-  add_user_hook = add_user_hook.replace(
-    /<<your-M2M-hook>>/g,
-    "https://" + m2mConfig.domain + "/oauth/token"
-  )
-  add_user_hook = add_user_hook.replace(
-    /<<your-client-id>>/g,
-    m2mConfig.clientID
-  )
-  add_user_hook = add_user_hook.replace(
-    /<<your-client-secret>>/g,
-    m2mConfig.clientSecret
-  )
-  add_user_hook = add_user_hook.replace(
-    /<<your-M2M-audience>>/g,
-    "https://" + m2mConfig.domain + "/api/v2/"
-  )
-  add_user_hook = add_user_hook.replace(
+function addOrUpdateRule(management, config, ruleName) {
+  var rule = readFileSync(dir + "/rules/" + ruleName + ".js", "utf8")
+  rule = rule.replace(/<<app-claims-namespace>>/g, config.AUTH0_CUSTOM_CLAIMS)
+  rule = rule.replace(
     /<<your-Slash-GraphQL-URL>>/g,
-    process.env.REACT_APP_SLASH_GRAPHQL_ENDPOINT + "/graphql"
+    config.SLASH_GRAPHQL_ENDPOINT + "/graphql"
+  )
+  rule = rule.replace(
+    /<<your-M2M-hook>>/g,
+    "https://" + config.AUTH0_DOMAIN + "/oauth/token"
+  )
+  rule = rule.replace(/<<your-client-id>>/g, config.m2m.client_id)
+  rule = rule.replace(/<<your-client-secret>>/g, config.m2m.client_secret)
+  rule = rule.replace(
+    /<<your-M2M-audience>>/g,
+    "https://" + config.AUTH0_DOMAIN + "/api/v2/"
   )
 
-  var add_user_hook_data = {
-    name: "add-user-to-slash-graphql",
-    script: add_user_hook,
+  const ruleData = {
+    name: ruleName,
     enabled: true,
+    script: rule,
   }
-  addOrUpdateHook(management, add_user_hook_data, "post-user-registration")
-}
 
-function addOrUpdateRule(management, ruleData, stage) {
   management.getRules(function (err, rules) {
     if (err) {
       console.log(err)
@@ -102,6 +91,7 @@ function addOrUpdateRule(management, ruleData, stage) {
 }
 
 var config = JSON.parse(readFileSync(dir + "/config.json", "utf8"))
+config.SLASH_GRAPHQL_ENDPOINT = process.env.REACT_APP_SLASH_GRAPHQL_ENDPOINT
 
 var management = new ManagementClient({
   domain: config.AUTH0_DOMAIN,
@@ -113,10 +103,7 @@ var authorize_add_hook = readFileSync(
   dir + "/hooks/" + "authorize-add-user-to-slash-graphql.js",
   "utf8"
 )
-authorize_add_hook = authorize_add_hook.replace(
-  /<<app-claims-namespace>>/g,
-  config.AUTH0_CUSTOM_CLAIMS
-)
+
 var authorize_add_hook_data = {
   name: "authorize-add-user-to-slash-graphql",
   script: authorize_add_hook,
@@ -124,20 +111,8 @@ var authorize_add_hook_data = {
 }
 addOrUpdateHook(management, authorize_add_hook_data, "credentials-exchange")
 
-var add_username_rule = readFileSync(
-  dir + "/rules/" + "add-username.js",
-  "utf8"
-)
-add_username_rule = add_username_rule.replace(
-  /<<app-claims-namespace>>/g,
-  config.AUTH0_CUSTOM_CLAIMS
-)
-var add_username_rule_data = {
-  name: "add-username",
-  enabled: true,
-  script: add_username_rule,
-}
-addOrUpdateRule(management, add_username_rule_data)
+addOrUpdateRule(management, config, "add-username")
+addOrUpdateRule(management, config, "add-user-to-slash-graphql")
 
 management.getClients(function (err, clients) {
   if (err) {

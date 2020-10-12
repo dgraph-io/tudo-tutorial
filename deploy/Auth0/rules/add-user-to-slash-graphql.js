@@ -19,13 +19,8 @@
 @param {function} cb - function (error, response)
 */
 
-// Add this hook as a "Post User Registration" hook.
-// It needs both a "Client Credentials Exchange" hook and
-// a "MACHINE TO MACHINE" application set up to work
-// (see authorize-add-user-to-slash-graphql.js).
-//
 // After Auth0 has processed the user registration flow and added the user
-// to its internal user list for the app, it calls this hook, which then adds
+// to its internal user list for the app, it calls this rule, which then adds
 // the user to the Slash GraphQL graph.
 //
 // The user is needed in Slash GraphQL, so we can link the user to their data.
@@ -34,11 +29,15 @@
 // add a user is if the request contains a valid Auth0 signed JWT that has the
 // 'AddUser' permission, and the only way to get that is if you know the
 // Auth0 secrets.
+//
+// This can be done in either a post-user-registration hook or a rule.  The post
+// user registration isn't called with social connections, so a rule is the 
+// best choice if you are going to enable social connections.
 
-const axios = require("axios@0.19.2")
-const { GraphQLClient } = require("graphql-request@1.8.2")
+function addUserToSlashGraphQL(user, context, callback) {
+  const axios = require("axios@0.19.2")
+  const { GraphQLClient } = require("graphql-request@1.8.2")
 
-module.exports = function (user, context, cb) {
   // Fill these values in with the details of your Auth0 "MACHINE TO MACHINE" application.
   // Creating the M2M app gives you the credentials needed to call the
   // "Client Credentials Exchange" and thus generate an Auth0 signed JWT.
@@ -50,6 +49,37 @@ module.exports = function (user, context, cb) {
   // Fill this value with your Slash GraphQL instance.
   const slashGraphQL = "<<your-Slash-GraphQL-URL>>"
 
+  const findUser = `
+    query getUser($username: String!) {
+      getUser(username: $username) {
+        username
+      }
+    }
+  `
+
+  const addUser = `
+    mutation($username: String!) {
+      addUser(
+        input: [
+          {
+            username: $username
+            todos: [
+              { value: "Get a Slash GraphQL account", completed: true }
+              { value: "Deploy a GraphQL backend", completed: true }
+              { value: "Build a React app", completed: false }
+              { value: "Learn more GraphQL", completed: false }
+              { value: "Build apps with Slash GraphQL", completed: false }
+            ]
+          }
+        ]
+      ) {
+        user {
+          username
+        }
+      }
+    }
+  `
+  
   // First we call the "Client Credentials Exchange" hook to get a signed JWT that has
   // a claim to the "AddUser" role - we've set the schema so only that role can add a user.
   axios
@@ -70,38 +100,29 @@ module.exports = function (user, context, cb) {
       })
 
       client
-        .request(
-          `mutation($name: String!) {
-            addUser(
-              input: [
-                {
-                  username: $name
-                  todos: [
-                    { value: "Get a Slash GraphQL account", completed: true }
-                    { value: "Deploy a GraphQL backend", completed: true }
-                    { value: "Build a React app", completed: false }
-                    { value: "Learn more GraphQL", completed: false }
-                    { value: "Build apps with Slash GraphQL", completed: false }
-                  ]
-                }
-              ]
-            ) {
-              user {
-                username
-              }
-            }
+        .request(findUser, { username: user.email })
+        .then((data, error) => {
+          if (error) {
+            callback(error, user, context)
+          } else if (data && data.getUser && data.getUser.username) {
+            // The user is already in Slash GraphQL
+            callback(null, user, context)
+          } else {
+            client
+              .request(addUser, { username: user.email })
+              .then((data, error) => {
+                callback(error, user, context)
+              })
+              .catch((error) => {
+                callback(error, user, context)
+              })
           }
-        `,
-          { name: user.email }
-        )
-        .then((data, err) => {
-          cb(err, null)
         })
         .catch((error) => {
-          cb(error, null)
+          callback(error, user, context)
         })
     })
     .catch((error) => {
-      cb(error, null)
+      callback(error, user, context)
     })
 }
