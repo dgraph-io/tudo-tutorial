@@ -1,6 +1,6 @@
 type User @auth(
-    query: { rule: must-be-this-user },
-    add: { rule: "{$role: {eq: \"AddUser\"}}" },
+    query: { or: [ { rule: must-be-this-user }, { rule: "{$role: {eq: \"Admin\"}}" } ] },
+    add: { rule: "{$role: {eq: \"Admin\"}}" },
     update: { rule: "{$role: {eq: \"Admin\"}}" }
     delete: { rule: "{$role: {eq: \"Admin\"}}" }
 ) {
@@ -10,7 +10,7 @@ type User @auth(
 
 type Todo @auth(
     query: { rule: must-own-todo },
-    add: { or: [ { rule: must-own-todo }, { rule: "{$role: {eq: \"AddUser\"}}" } ] },
+    add: { or: [ { rule: must-own-todo }, { rule: "{$role: {eq: \"Admin\"}}" } ] },
     update: { rule: must-own-todo },
     delete: { rule: must-own-todo }
 ){
